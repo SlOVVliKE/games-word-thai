@@ -1560,6 +1560,11 @@ body::before {
     border-radius: 20px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     min-width: 150px;
+    min-height: 100px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .stat-label {
@@ -1655,26 +1660,6 @@ body::before {
         height: 80px;
     }
     
-    .thai-keyboard {
-        gap: 8px;
-        padding: 15px 10px;
-        max-width: calc(100% - 20px);
-        margin: 0 auto;
-    }
-    
-    .thai-key {
-        width: 70px;
-        height: 70px;
-        font-size: 1.6em;
-        border-radius: 16px;
-    }
-    
-    .vowel-tone-keys {
-        width: 75px;
-        height: 75px;
-        font-size: 1.8em;
-        border-radius: 18px;
-    }
 }
 
 .game-content {
@@ -1735,6 +1720,22 @@ body::before {
     box-shadow: 0 4px 12px rgba(79, 184, 72, 0.2);
 }
 
+/* Tablet: make the category pill fit its text */
+@media (min-width: 481px) and (max-width: 1024px) {
+    .level-indicator {
+        width: 80%;
+        max-width: 420px;
+        min-width: 220px;
+        box-sizing: border-box;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 12px 0;
+        margin: 0 auto 16px auto;
+        font-size: 1.15em;
+    }
+}
+
 @media (max-width: 480px) {
     .level-indicator {
         padding: 10px;
@@ -1773,11 +1774,30 @@ body::before {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+    .keyboard-section {
+        width: 100%;
+        padding: 0 5px;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 }
 
 @media (max-width: 480px) {
     .keyboard-section {
-        padding: 0 5px;
+        width: 100%;
+        padding: 5px 0;
+        margin: 0 auto;
+        display: flex;
+        justify-content: center;
+        align-items: center;
     }
 }
 
@@ -1941,11 +1961,39 @@ body::before {
 .thai-keyboard {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-    max-width: 480px;
+    gap: 10px;
+    max-width: 500px;
     width: 100%;
     margin: 0 auto;
     position: relative;
+    padding: 15px 10px;
+}
+
+/* Tablet & smaller devices */
+@media (max-width: 1024px) {
+    .thai-keyboard {
+        gap: 4px;
+        padding: 4px 2px;
+        max-width: 85%;
+    }
+    
+    .thai-key {
+        font-size: 0.9em;
+        border-radius: 9px;
+    }
+}
+
+/* Mobile devices */
+@media (max-width: 480px) {
+    .thai-keyboard {
+        gap: 6px;
+        padding: 8px 5px;
+    }
+    
+    .thai-key {
+        font-size: 1.2em;
+        border-radius: 10px;
+    }
 }
 
 .thai-key {
@@ -2059,6 +2107,8 @@ body::before {
     position: relative;
     flex-wrap: wrap;
     padding: 10px;
+    max-width: 500px;
+    margin: 0 auto;
 }
 
 .answer-slot {
@@ -2479,6 +2529,16 @@ body::before {
         grid-template-columns: 1fr;
         padding: 30px 20px;
         gap: 30px;
+    }
+
+    .game-left {
+        width: 100%;
+        max-width: 100%;
+    }
+
+    .game-right {
+        width: 100%;
+        max-width: 100%;
     }
 
     .game-subtitle {
