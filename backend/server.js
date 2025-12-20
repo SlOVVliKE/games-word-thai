@@ -5,9 +5,10 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 require('dotenv').config();
 
-const User = require('./models/User');
-const Progress = require('./models/Progress');
-const Leaderboard = require('./models/Leaderboard');
+// Match case-sensitive Linux filenames on Render
+const User = require('./models/user');
+const Progress = require('./models/progress');
+const Leaderboard = require('./models/leaderboard');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
