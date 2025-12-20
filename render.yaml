@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: thai-word-game-backend
+    name: games-word-thai
     runtime: node
     rootDir: backend
     buildCommand: npm install
