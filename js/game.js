@@ -3,6 +3,18 @@ let currentUser = null;
 let currentUserData = null;
 let selectedCharacterId = null;
 let tempRegisterData = null;
+// Track which levels are available to unlock manually (answered >=5)
+let unlockAvailableLevels = {};
+// Track unlock notification UI: pending level to notify and per-level shown flag
+let pendingUnlockNotificationLevel = null;
+let unlockNotificationShown = {};
+// Load shown-notification flags from localStorage so user won't see the same notice after reload
+try {
+    const stored = localStorage.getItem('unlockNotificationShown');
+    if (stored) unlockNotificationShown = JSON.parse(stored) || {};
+} catch (e) {
+    unlockNotificationShown = {};
+}
 
 // Character image mapping (ใช้ร่วมกัน)
 const characterImages = {
@@ -318,6 +330,19 @@ async function loadUserData() {
         unlockedLevels = Array.isArray(progress.unlockedLevels) && progress.unlockedLevels.length > 0 
             ? progress.unlockedLevels[progress.unlockedLevels.length - 1] 
             : 1;
+        // If the current highest unlocked level has >=5 answered, mark next level as available to unlock
+        try {
+            const curKey = String(unlockedLevels);
+            if (answeredWords[curKey] && answeredWords[curKey].length >= 5 && unlockedLevels < 10) {
+                unlockAvailableLevels[unlockedLevels] = true;
+                const nextLevel = unlockedLevels + 1;
+                if (!unlockNotificationShown[nextLevel]) {
+                    pendingUnlockNotificationLevel = nextLevel;
+                }
+            }
+        } catch (e) {
+            console.warn('Error computing pending unlock from loaded progress', e);
+        }
         
         console.log('Loaded from MongoDB (after normalize):');
         console.log('answeredWords:', answeredWords);
@@ -587,14 +612,38 @@ function updateLevelDisplay() {
         const levelCard = wordsContainer?.closest('.level-card');
         const startButton = document.getElementById(`startLevel${level}`);
         
+        // Determine if this level can be manually unlocked (previous level answered >=5)
+        const canUnlockThisLevel = (unlockAvailableLevels[level - 1] === true) && (level === unlockedLevels + 1);
+
         // ล็อคด่านที่ยังไม่ได้ปลดล็อค
         if (level > unlockedLevels) {
-            if (levelCard) levelCard.style.opacity = '0.6';
-            if (startButton) {
-                startButton.disabled = true;
-                startButton.style.opacity = '0.5';
-                startButton.style.cursor = 'not-allowed';
-                startButton.innerHTML = '🔒 ล็อค';
+            if (canUnlockThisLevel) {
+                // Show unlock action instead of a disabled lock button
+                if (levelCard) levelCard.style.opacity = '1';
+                if (startButton) {
+                    startButton.disabled = false;
+                    startButton.style.opacity = '1';
+                    startButton.style.cursor = 'pointer';
+                    startButton.innerHTML = 'ปลดล็อค';
+                    startButton.onclick = async (e) => {
+                        e.preventDefault();
+                        unlockedLevels = level;
+                        // clear availability for this unlock
+                        if (unlockAvailableLevels[level - 1]) delete unlockAvailableLevels[level - 1];
+                        await saveUserData();
+                        updateLevelDisplay();
+                        showCustomAlert('ปลดล็อคด่านเรียบร้อย', '✅');
+                    };
+                }
+            } else {
+                if (levelCard) levelCard.style.opacity = '0.6';
+                if (startButton) {
+                    startButton.disabled = true;
+                    startButton.style.opacity = '0.5';
+                    startButton.style.cursor = 'not-allowed';
+                    startButton.innerHTML = '🔒 ล็อค';
+                    startButton.onclick = null;
+                }
             }
         } else {
             if (levelCard) levelCard.style.opacity = '1';
@@ -603,6 +652,7 @@ function updateLevelDisplay() {
                 startButton.style.opacity = '1';
                 startButton.style.cursor = 'pointer';
                 startButton.innerHTML = `เล่นด่าน ${level}`;
+                startButton.onclick = () => startLevel(level);
             }
         }
         
@@ -655,8 +705,33 @@ function updateLevelDisplay() {
             const answered = answeredWords[level] ? answeredWords[level].length : 0;
             scoreElement.textContent = `${answered}/10`;
         }
+        
     }
     
+    // หากมีการแจ้งเตือนการปลดล็อคค้างอยู่ ให้แสดงเฉพาะเมื่ออยู่ในหน้ารายการด่าน และแสดงครั้งเดียว
+    const pending = pendingUnlockNotificationLevel;
+    if (pending && !unlockNotificationShown[pending]) {
+        const activeScreenId = document.querySelector('.screen.active')?.id;
+        // ไม่แสดงขณะเล่นด่านเดียวกัน — แสดงเฉพาะในหน้ารายการด่าน
+        if (activeScreenId === 'levelSelect') {
+            // แสดงข้อความแจ้งเตือน (ผู้เล่นต้องกดตกลงเพื่อยืนยัน)
+            showCustomAlert('คุณสามารถปลดล็อคด่านถัดไปได้แล้ว ไปที่หน้ารายการด่านเพื่อปลดล็อค', '✅');
+            const overlay = document.getElementById('customAlertOverlay');
+            if (overlay) {
+                const btn = overlay.querySelector('.custom-alert-button');
+                if (btn) {
+                    // ตั้งค่า handler ชั่วคราว: เมื่อกดจะบันทึกว่าแสดงแล้วและปิด dialog
+                    btn.onclick = function() {
+                        unlockNotificationShown[pending] = true;
+                        try { localStorage.setItem('unlockNotificationShown', JSON.stringify(unlockNotificationShown)); } catch (e) {}
+                        pendingUnlockNotificationLevel = null;
+                        closeCustomAlert();
+                    };
+                }
+            }
+        }
+    }
+
     // คำนวณคะแนนรวมและระดับ
     updateTotalScore();
 }
@@ -1073,13 +1148,24 @@ function checkAnswer() {
         document.getElementById('nextButton').style.display = 'inline-block';
         document.querySelector('.check-button').style.display = 'none';
         
-        // ตรวจสอบว่าตอบได้ 5 ข้อหรือยัง เพื่อปลดล็อคด่านถัดไป
+        // ตรวจสอบว่าตอบได้ 5 ข้อหรือยัง — ถ้าครบแล้ว ให้แสดงปุ่มให้ผู้เล่นปลดล็อคเอง
         if (answeredWords[levelKey].length >= 5 && currentLevel === unlockedLevels && currentLevel < 10) {
-            unlockedLevels = currentLevel + 1;
-            saveUserData();
+            // Mark next level as available to unlock (will show unlock UI in level select)
+            unlockAvailableLevels[currentLevel] = true;
+            // Remember to notify the player (but don't show immediately while they're playing)
+            pendingUnlockNotificationLevel = currentLevel + 1;
+            // update UI so the unlock button/status appears in level select
+            updateLevelDisplay();
         }
         
         createConfetti();
+        // Auto-advance to next word after a short delay when answer is correct
+        setTimeout(() => {
+            // Close the result modal then advance
+            try { closeModal(); } catch (e) {}
+            // Advance to next word (will handle end-of-level inside loadWord)
+            nextWord();
+        }, 1200);
     } else {
         showResultModal(false);
         // Reset answer
