@@ -2168,6 +2168,38 @@ body::before {
     font-weight: 700;
 }
 
+/* Visual state for a level card that is unlockable but not yet unlocked */
+.level-card.unlockable .level-card-title,
+.level-card.unlockable .word-grid,
+.level-card.unlockable .level-score {
+    opacity: 0.55;
+    filter: grayscale(10%);
+}
+
+/* Visual state for a level card that is locked */
+.level-card.locked .level-card-title,
+.level-card.locked .word-grid,
+.level-card.locked .level-score {
+    opacity: 0.55;
+    filter: grayscale(20%);
+}
+
+/* Ensure start button stays fully visible when acting as unlock */
+.level-card .start-button.unlock-action {
+    opacity: 1 !important;
+    transform: translateY(-2px);
+    position: relative;
+    z-index: 5;
+}
+
+/* Start button when it's acting as an unlock action */
+[id^="startLevel"].unlock-action,
+.start-button.unlock-action {
+    background: linear-gradient(135deg, #31c14a 0%, #4fb848 100%);
+    box-shadow: 0 8px 20px rgba(79,184,72,0.45);
+    transform: translateY(-2px);
+}
+
 .answer-slot.wrong {
     animation: shake 0.5s;
     background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);

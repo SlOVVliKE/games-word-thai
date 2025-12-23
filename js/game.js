@@ -618,41 +618,53 @@ function updateLevelDisplay() {
         // ล็อคด่านที่ยังไม่ได้ปลดล็อค
         if (level > unlockedLevels) {
             if (canUnlockThisLevel) {
-                // Show unlock action instead of a disabled lock button
-                if (levelCard) levelCard.style.opacity = '1';
+                // Keep the level card faded like locked, but make the start button an active unlock action
+                if (levelCard) levelCard.classList.add('unlockable');
                 if (startButton) {
                     startButton.disabled = false;
                     startButton.style.opacity = '1';
                     startButton.style.cursor = 'pointer';
+                    startButton.classList.add('unlock-action');
                     startButton.innerHTML = 'ปลดล็อค';
                     startButton.onclick = async (e) => {
                         e.preventDefault();
                         unlockedLevels = level;
                         // clear availability for this unlock
                         if (unlockAvailableLevels[level - 1]) delete unlockAvailableLevels[level - 1];
+                        // remove visual flags
+                        if (levelCard) levelCard.classList.remove('unlockable');
+                        startButton.classList.remove('unlock-action');
                         await saveUserData();
                         updateLevelDisplay();
                         showCustomAlert('ปลดล็อคด่านเรียบร้อย', '✅');
                     };
                 }
             } else {
-                if (levelCard) levelCard.style.opacity = '0.6';
+                if (levelCard) {
+                    levelCard.classList.remove('unlockable');
+                    levelCard.classList.add('locked');
+                }
                 if (startButton) {
                     startButton.disabled = true;
                     startButton.style.opacity = '0.5';
                     startButton.style.cursor = 'not-allowed';
                     startButton.innerHTML = '🔒 ล็อค';
                     startButton.onclick = null;
+                    startButton.classList.remove('unlock-action');
                 }
             }
         } else {
-            if (levelCard) levelCard.style.opacity = '1';
+            if (levelCard) {
+                levelCard.classList.remove('unlockable');
+                levelCard.classList.remove('locked');
+            }
             if (startButton) {
                 startButton.disabled = false;
                 startButton.style.opacity = '1';
                 startButton.style.cursor = 'pointer';
                 startButton.innerHTML = `เล่นด่าน ${level}`;
                 startButton.onclick = () => startLevel(level);
+                startButton.classList.remove('unlock-action');
             }
         }
         
@@ -754,6 +766,20 @@ function updateTotalScore() {
     const totalScoreElement = document.getElementById('totalScore');
     if (totalScoreElement) {
         totalScoreElement.textContent = `${percentage}%`;
+    }
+
+    // แสดงจำนวนด่านที่ปลดล็อค (เช่น 5/10)
+    const unlockedEl = document.getElementById('unlockedCount');
+    if (unlockedEl) {
+        const maxLevels = Object.keys(gameData).length || 10;
+        unlockedEl.textContent = `${unlockedLevels}/${maxLevels}`;
+    }
+
+    // แสดงจำนวนข้อที่ตอบได้เทียบกับจำนวนข้อรวมตามด่านที่ปลดล็อค (เช่น 25/50)
+    const answeredEl = document.getElementById('answeredFraction');
+    if (answeredEl) {
+        // totalPossible already computed based on unlockedLevels
+        answeredEl.textContent = `${totalAnswered}/${totalPossible}`;
     }
     
     // กำหนดระดับและสี
