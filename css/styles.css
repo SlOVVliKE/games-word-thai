@@ -1013,7 +1013,8 @@ body::before {
 
 .levels-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    /* Desktop: 2 cards per row as requested */
+    grid-template-columns: repeat(2, 1fr);
     gap: 30px;
     margin-bottom: 30px;
 }
@@ -1078,21 +1079,109 @@ body::before {
 
 @media (max-width: 480px) {
     .level-card {
-        padding: 20px 12px;
-        border-radius: 25px;
-        margin: 0 auto;
-        max-width: calc(100% - 20px);
+        width: 90vw;
+        max-width: 350px;
+        min-width: unset;
+        margin: 0 auto 16px auto;
+        border-radius: 20px;
+        box-shadow: 0 8px 24px rgba(40, 120, 200, 0.10), 0 1.5px 8px rgba(255, 105, 180, 0.10);
+        padding: 18px 0 18px 0;
+        background: linear-gradient(135deg, #f8fafc 60%, #e0e7ff 100%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        box-sizing: border-box;
+        border: 2.5px solid #e0e7ff;
+        position: relative;
+    }
+    .level-card-title {
+        font-size: 1.2em;
+        margin-bottom: 10px;
+        color: #2563a8;
+        font-weight: bold;
+        text-align: center;
+        letter-spacing: 0.5px;
+        text-shadow: 0 1px 0 #fff, 0 2px 6px #b6c6e6;
+    }
+    .word-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px 18px;
+        margin-bottom: 18px;
+        width: 100%;
+        padding: 0 8px;
         box-sizing: border-box;
     }
-    
-    .level-card-title {
-        font-size: 1.15em;
-        margin-bottom: 15px;
+    .level-card .level-btn {
+        margin: 0;
     }
-    
-    .word-grid {
-        gap: 10px;
-        margin-bottom: 15px;
+    /* ปุ่มใน level card */
+    .level-card .level-btn {
+        width: 44vw;
+        min-width: 120px;
+        max-width: 160px;
+        margin: 6px 0;
+        font-size: 1.1em;
+        border-radius: 16px;
+        background: linear-gradient(90deg, #4ade80 0%, #38bdf8 100%);
+        color: #fff;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(56,189,248,0.10);
+        border: none;
+        transition: transform 0.12s, box-shadow 0.12s, background 0.18s;
+        position: relative;
+        overflow: hidden;
+    }
+    .level-card .level-btn:active {
+        transform: scale(0.97);
+        box-shadow: 0 1px 3px rgba(56,189,248,0.10);
+        background: linear-gradient(90deg, #38bdf8 0%, #4ade80 100%);
+    }
+    .level-card .level-btn:hover {
+        filter: brightness(1.08);
+        box-shadow: 0 4px 12px rgba(56,189,248,0.13);
+    }
+    /* ปุ่มเสียงในปุ่ม */
+    .level-card .level-btn .sound-icon, .level-card .level-btn .sound-btn {
+        background: #fff;
+        color: #38bdf8;
+        border-radius: 50%;
+        width: 26px;
+        height: 26px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1em;
+        margin-left: 8px;
+        box-shadow: 0 1px 4px rgba(56,189,248,0.10);
+        border: 1.5px solid #bae6fd;
+        transition: background 0.15s, color 0.15s;
+    }
+    .level-card .level-btn .sound-icon:active, .level-card .level-btn .sound-btn:active {
+        background: #bae6fd;
+        color: #2563a8;
+    }
+    .level-card .level-btn .sound-icon:hover, .level-card .level-btn .sound-btn:hover {
+        background: #e0f2fe;
+        color: #0ea5e9;
+    }
+    /* เพิ่มลูกเล่น background ฟุ้งๆ */
+    .level-card::before {
+        content: '';
+        position: absolute;
+        top: -30px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 80%;
+        height: 40px;
+        background: radial-gradient(ellipse at center, #bae6fd55 0%, transparent 80%);
+        z-index: 0;
+        border-radius: 50%;
+        pointer-events: none;
+    }
+    .level-card .level-btn, .level-card .level-btn * {
+        z-index: 1;
+        position: relative;
     }
 }
 
