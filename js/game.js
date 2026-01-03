@@ -30,6 +30,7 @@ const characterImages = {
 window.onload = async () => {
     setupCharacterSelection();
     setupEditCharacterSelection();
+    startBackgroundMusic(); // เริ่มเล่นเพลงพื้นหลังตั้งแต่โหลดหน้า
     
     // Check if user has token
     if (gameAPI.token) {
@@ -560,8 +561,8 @@ let currentLevel = 1;
 let currentWordIndex = 0;
 let currentAnswer = [];
 let score = 0;
-let soundEnabled = true;
-let backgroundMusicEnabled = true;
+let soundEnabled = true; // ควบคุมเสียงคำและปุ่ม
+let backgroundMusicEnabled = true; // ควบคุมเสียงเพลงพื้นหลังแยกต่างหาก
 let levelScores = {};
 let answeredWords = {};
 let unlockedLevels = 1;
@@ -578,7 +579,7 @@ function init() {
 function startBackgroundMusic() {
     if (!backgroundMusic) {
         backgroundMusic = new Audio('เสียงคำตอบ/เพลง.mp3');
-        backgroundMusic.volume = 0.15; // ปรับความดังให้เบา (15%)
+        backgroundMusic.volume = 0.08; // ปรับความดังให้เบา (8%)
         backgroundMusic.loop = true; // เล่นวนลูป
         
         if (backgroundMusicEnabled) {
@@ -1321,7 +1322,7 @@ function playCorrectSound() {
 function playCorrectSound() {
     if (!soundEnabled) return;
     
-    // สร้างเสียงพลุ (celebration sound)
+    // สร้างเสียงพลุ (celebration sound) ดังขึ้น
     const audioContext = new (window.AudioContext || window.webkitAudioContext)();
     
     // เล่นเสียงหลายชุดเพื่อเลียนแบบเสียงพลุ
@@ -1338,7 +1339,7 @@ function playCorrectSound() {
             oscillator.type = 'sine';
             
             // ลดเสียงค่อยๆ
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.setValueAtTime(0.5, audioContext.currentTime);
             gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.5);
             
             oscillator.start(audioContext.currentTime);
@@ -1362,7 +1363,7 @@ function playWrongSound() {
     oscillator.frequency.setValueAtTime(200, audioContext.currentTime);
     oscillator.type = 'sawtooth';
     
-    gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+    gainNode.gain.setValueAtTime(0.2, audioContext.currentTime);
     gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.3);
     
     oscillator.start(audioContext.currentTime);
@@ -1379,6 +1380,7 @@ function playAudio(src) {
     }
     
     currentAudio = new Audio(src);
+    currentAudio.volume = 0.8; // ปรับระดับเสียงปุ่มให้ดังพอ
     currentAudio.play().catch(error => {
         console.log('Audio playback failed:', error);
     });
@@ -1389,7 +1391,7 @@ function toggleSound() {
     const soundIcon = document.querySelector('.sound-icon');
     soundIcon.textContent = backgroundMusicEnabled ? '🔊' : '🔇';
     
-    // ควบคุมเพลงพื้นหลัง
+    // ควบคุมเพลงพื้นหลังเท่านั้น (ไม่ปิดเสียงคำและปุ่ม)
     if (backgroundMusic) {
         if (backgroundMusicEnabled) {
             backgroundMusic.play().catch(error => {
@@ -1399,6 +1401,29 @@ function toggleSound() {
             backgroundMusic.pause();
         }
     }
+    
+    // เล่นเสียงเมื่อปิด/เปิดเสียง
+    playButtonClickSound();
+}
+
+function playButtonClickSound() {
+    if (!soundEnabled) return;
+    // เล่นเสียง click ของปุ่ม
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const oscillator = audioContext.createOscillator();
+    const gainNode = audioContext.createGain();
+    
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+    
+    oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+    oscillator.type = 'sine';
+    
+    gainNode.gain.setValueAtTime(0.15, audioContext.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+    
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1);
 }
 
 function createConfetti() {
