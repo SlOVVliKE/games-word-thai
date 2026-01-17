@@ -20,6 +20,18 @@ const progressSchema = new mongoose.Schema({
         of: [String],
         default: {}
     },
+    additionalVowels: {
+        type: [String],
+        default: []
+    },
+    additionalConsonants: {
+        type: [String],
+        default: []
+    },
+    additionalTones: {
+        type: [String],
+        default: []
+    },
     completedLevels: {
         type: [Number],
         default: []

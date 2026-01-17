@@ -416,7 +416,7 @@ const gameData = {
             { word: "ตู้", image: "ภาพประกอบ คำศัพท์/16.png" },
             { word: "โต๊ะ", image: "ภาพประกอบ คำศัพท์/17.png" },
             { word: "ถ้วย", image: "ภาพประกอบ คำศัพท์/18.png" },
-            { word: "ซ่อม", image: "ภาพประกอบ คำศัพท์/19.png" },
+            { word: "ส้อม", image: "ภาพประกอบ คำศัพท์/19.png" },
             { word: "หม้อ", image: "ภาพประกอบ คำศัพท์/20.png" },
             { word: "ช้อน", image: "ภาพประกอบ คำศัพท์/21.png" },
             { word: "แก้ว", image: "ภาพประกอบ คำศัพท์/22.png" }
@@ -999,9 +999,17 @@ function generateKeyboard(word) {
     // Get unique characters from the word
     const wordChars = [...new Set(word.split(''))];
     
-    // แยกพยัญชนะและสระ/วรรณยุกต์
-    const consonantsInWord = wordChars.filter(char => consonantImageMap[char]);
-    const vowelsInWord = wordChars.filter(char => !consonantImageMap[char]);
+    // แยกพยัญชนะและสระ/วรรณยุกต์ (นับจำนวนที่ปรากฏในคำ รวมตัวซ้ำ)
+    const consonantsInWord = [];
+    const vowelsInWord = [];
+    
+    for (const char of word) {
+        if (consonantImageMap[char]) {
+            consonantsInWord.push(char);
+        } else if (char !== '') {
+            vowelsInWord.push(char);
+        }
+    }
     
     // Add some extra random characters to make it challenging
     const randomConsonants = [];
