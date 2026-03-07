@@ -1581,6 +1581,7 @@ body::before {
     margin-bottom: 30px;
 }
 
+<<<<<<< HEAD
 /* Player Summary Info - ข้อมูลผู้เล่นในหน้าสรุปผล */
 .player-summary-info {
     display: flex;
@@ -1644,6 +1645,8 @@ body::before {
     }
 }
 
+=======
+>>>>>>> a6ea1e820c25598aef843412de93b7d2b84cd97b
 /* User Profile Display */
 .user-profile-display {
     display: flex;

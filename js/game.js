@@ -760,6 +760,7 @@ function updateLevelDisplay() {
 }
 
 function updateTotalScore() {
+<<<<<<< HEAD
     // อัพเดทข้อมูลผู้เล่นในหน้าสรุปผล
     if (currentUser && currentUserData) {
         const summaryAvatar = document.getElementById('summaryPlayerAvatar');
@@ -777,6 +778,8 @@ function updateTotalScore() {
         }
     }
 
+=======
+>>>>>>> a6ea1e820c25598aef843412de93b7d2b84cd97b
     let totalAnswered = 0;
     let totalPossible = 0;
     
@@ -1017,7 +1020,10 @@ function generateKeyboard(word) {
         'ำ': 25,
         'ใ': 26,
         'ไ': 27,
+<<<<<<< HEAD
         'ั': 'ไม้หันกาศ',  // ไม้หันกาศ (mai han akat)
+=======
+>>>>>>> a6ea1e820c25598aef843412de93b7d2b84cd97b
         '่': 32,
         '้': 33,
         '๊': 34,
